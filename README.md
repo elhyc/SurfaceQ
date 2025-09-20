@@ -55,7 +55,7 @@ Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define correspon
 <img src="./figures/tanner_Z_7x7.png" width="500"/>
 </p>
 
-The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of "$v$-"; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
+The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
 
 This [Jupyter notebook](./src/KitaevSurfaceCode.ipynb) demonstrates some of the functionality provided by the main python file in this repository.
 
