@@ -46,7 +46,7 @@ Unlike the implementation found [here](https://github.com/elhyc/Kitaev-Toric-Cod
 First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a NetworkX lattice grid of size $d \times d$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
 
 <p align="center">
-<img src="./figures/primal_lattice_7x7.png"  width="750"/>
+<img src="./figures/primal_lattice_7x7.png"  width="400"/>
 </p>
 
 
@@ -75,7 +75,7 @@ A useful aspect of the implementation of the surface code based on rotated surfa
 
 <u>Erasure error</u>:
 <p align="center">
-  <img src="./figures/erasure error graph.png" width="300" />
+  <img src="./figures/erasure error graph.png" width="400" />
 </p>
 
 Note that while the code threshold for the MWPM decoder is slightly higher than the threshold for the UF decoder, an ideal implementation of the UF decoder should have [<em>almost-</em>linear time complexity](https://arxiv.org/abs/1709.06218). That is, the time complexity is in $O(\alpha(n)n)$ where $\alpha(n)$ may be considered to satisfy $\alpha(n) \leq 3$ for all practical purposes. When running UF decoder and the MWPM decoder simulations with our implementation, we do indeed notice that error correction cycle simulations with the UF decoder run quicker than simulations with the MWPM decoder. 
