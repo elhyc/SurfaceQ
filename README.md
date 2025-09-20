@@ -46,15 +46,15 @@ Unlike the implementation found [here](https://github.com/elhyc/Kitaev-Toric-Cod
 First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a NetworkX lattice grid of size $d \times d$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
 
 <p align="center">
-<img src="./figures/primal_lattice_7x7.png"  width="400"/>
+<img src="./figures/primal_lattice_7x7.png"  width="500"/>
 </p>
 
 
 Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define corresponding *Tanner graphs*: these are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$ and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $7 \times 7$ lattice: 
 
 <p align="center">
-<img src="./figures/tanner_X_7x7.png"  width="400"/>
-<img src="./figures/tanner_Z_7x7.png" width="400"/>
+<img src="./figures/tanner_X_7x7.png"  width="500"/>
+<img src="./figures/tanner_Z_7x7.png" width="500"/>
 </p>
 
 The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
