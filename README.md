@@ -53,8 +53,8 @@ First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a
 Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define corresponding *Tanner graphs*: these are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$ and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $7 \times 7$ lattice: 
 
 <p align="center">
-<img src="./figures/tanner_X_7x7.png"  width="350"/>
-<img src="./figures/tanner_Z_7x7.png" width="350"/>
+<img src="./figures/tanner_X_7x7.png"  width="400"/>
+<img src="./figures/tanner_Z_7x7.png" width="400"/>
 </p>
 
 The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
@@ -75,7 +75,7 @@ A useful aspect of the implementation of the surface code based on rotated surfa
 
 <u>Erasure error</u>:
 <p align="center">
-  <img src="./figures/erasure error graph.png" width="400" />
+  <img src="./figures/erasure error graph.png" width="300" />
 </p>
 
 Note that while the code threshold for the MWPM decoder is slightly higher than the threshold for the UF decoder, an ideal implementation of the UF decoder should have [<em>almost-</em>linear time complexity](https://arxiv.org/abs/1709.06218). That is, the time complexity is in $O(\alpha(n)n)$ where $\alpha(n)$ may be considered to satisfy $\alpha(n) \leq 3$ for all practical purposes. When running UF decoder and the MWPM decoder simulations with our implementation, we do indeed notice that error correction cycle simulations with the UF decoder run quicker than simulations with the MWPM decoder. 
