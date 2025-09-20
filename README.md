@@ -50,11 +50,11 @@ First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a
 </p>
 
 
-Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define corresponding *Tanner graphs*: these are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$ and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $5 \times 5$ lattice: 
+Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define corresponding *Tanner graphs*: these are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$ and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $7 \times 7$ lattice: 
 
 <p align="center">
-<img src="./figures/tanner_X_7x7.png"  width="500"/>
-<img src="./figures/tanner_Z_7x7.png" width="500"/>
+<img src="./figures/tanner_X_7x7.png"  width="350"/>
+<img src="./figures/tanner_Z_7x7.png" width="350"/>
 </p>
 
 The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
@@ -68,8 +68,8 @@ A useful aspect of the implementation of the surface code based on rotated surfa
 
 <u>Depolarizing error (MWPM vs UF decoder)</u>:
 <p align="center">
-  <img src="./figures/MWPMerrorgraph.png" width="500" />
-  <img src="./figures/UFerrorgraph.png" width="500" />
+  <img src="./figures/MWPMerrorgraph.png" width="350" />
+  <img src="./figures/UFerrorgraph.png" width="350" />
 </p>
 
 
