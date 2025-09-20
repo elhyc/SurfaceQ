@@ -13,7 +13,6 @@ from CSSCodesGottesman import *
 from networkx.algorithms import bipartite
 import math 
 
-
 def erasure_channel( quantum_circuit, qubits, p_error, print_option=False):
     erasure_flags = []
 
@@ -181,7 +180,7 @@ class RotatedSurfaceCode:
                 G = self.lattice_grid 
                 
             nx.draw(G, nx.spring_layout(G, iterations=2000), with_labels=True, font_size=6, node_size=90)
-
+            
         
     def initialize_ancillias(self):
         ancilla_nodes = {'X': [], 'Z': []}
@@ -341,7 +340,7 @@ class RotatedSurfaceCode:
                 return self.flat_idx( (self.rows - 1, node_coords[1]) )
             else:
                 return self.flat_idx( (0, node_coords[1]) ) 
-            
+    
     def error_channel_cycle(self, error_type, p_error, decoder_option, report_option=False):
 
         if error_type=='depolarizing':
@@ -370,7 +369,7 @@ class RotatedSurfaceCode:
         result = job.result()
     # memory = result.get_memory(transpiled_circuit)
         memory = result.get_memory(self.LatticeCircuit)
-        memory_result = memory_result = memory[0].replace(' ','')[len(self.Z_plaquettes)+1: ][::-1]
+        memory_result = memory_result = memory[0].replace(' ','')[len(self.X_plaquettes)+1: ][::-1]
     
 
         positions = []
@@ -386,23 +385,9 @@ class RotatedSurfaceCode:
         if error_type == 'erasure':
             self.erasure_decoder(erasure, 'X', positions )    
                
-    #     marked_X_graph, X_subgraph  = self.marked_tanner_graph('X', positions)
     
-    # ## address syndrome 
-    #     X_matchings = nx.min_weight_matching(X_subgraph,  weight='weight')
-        
-    #     for match in X_matchings:
-    #         if not ( (  match[0][0] == 'b' ) and (match[1][0] == 'b' ) ):
-    #             path = [ node for node in nx.shortest_path(marked_X_graph, match[0], match[1] ) if type(node) == int  ]
-    #             self.LatticeCircuit.z(path)
-
-
-
-
     ######### bit flips ###########
     
-        # Z_checks = [ 'r' + str(idx) for idx in range(len(self.Z_plaquettes) ) ]
-        # syndrome_measurement(self.LatticeCircuit, self.Z_graph,self.Z_checks , 'Z')
         self.syndrome_measurement('Z')
     
     # transpiled_circuit = transpile(LatticeCircuit)
@@ -429,16 +414,6 @@ class RotatedSurfaceCode:
                 self.MWPM_decoder('Z', positions )
         if error_type == 'erasure':
             self.erasure_decoder(erasure, 'Z', positions )   
-             
-    #     marked_plaquette_graph, plaquette_pairing_graph = self.marked_tanner_graph('Z', positions)
-
-    # ## address syndrome 
-    #     plaquette_matchings = nx.min_weight_matching( plaquette_pairing_graph,  weight='weight')
-
-    #     for match in plaquette_matchings:
-    #         if not ( (  match[0][0] == 'b' ) and (match[1][0] == 'b'  ) ):
-    #             path = [ node for node in nx.shortest_path( marked_plaquette_graph , match[0], match[1] ) if type(node) == int  ]
-    #             self.LatticeCircuit.x(path)
 
     def single_round(self,p_error, error_type, decoder_option=None, report_option=False):
         self.error_channel_cycle(error_type,p_error, decoder_option, report_option)
@@ -621,7 +596,6 @@ class RotatedSurfaceCode:
     
 class Cluster:
     def __init__(self, root, parent_graph, parity = 0, active= None ):
-        # self.vertices = vertices
         self.edge_nodes = []  
         self.root = root 
         self.support = { n for n in parent_graph.adj[root]  if n != root}
@@ -645,12 +619,7 @@ class Cluster:
 
         if phase == 0:
             new_boundary = self.support 
-            # for e in self.support:
-            #     # self.edge_nodes.append(e)
-            #     # self.graph.add_edge(self.root,e)
-            #     # self.support[e] = (self.support[e] + 1)%3
-            #     new_boundary.append(e)
-            
+
 
         if phase == 1:
             new_boundary = set()
@@ -659,7 +628,6 @@ class Cluster:
                     new_boundary_nodes = {n for n in self.parent_graph.neighbors(e) if n not in self.graph.nodes}
 
                     new_boundary.update(  new_boundary_nodes  )
-                    # self.vertices.extend( new_boundary_nodes  )
                     self.graph.add_edge( self.root, e )
                     self.graph.add_edges_from({(self.root,n) for n in new_boundary_nodes} )
                     self.graph.add_edges_from({  (n,e) for n in new_boundary_nodes  })
@@ -677,7 +645,6 @@ class Cluster:
         ## update boundary
         combined_boundary = self.boundary | cluster.boundary
         self.boundary =  combined_boundary - { n for n in self.parent_graph.neighbors( fusion_node  ) if n in self.graph.nodes or n in self.edge_nodes}  
-        # combined_support = set(self.support ) | set(cluster.support)
         new_support = set()
         for node in self.boundary:
             new_support.update({  n for n in self.parent_graph.neighbors(node) if n not in self.graph.nodes and n not in self.edge_nodes }    )
