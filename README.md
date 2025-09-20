@@ -68,14 +68,14 @@ A useful aspect of the implementation of the surface code based on rotated surfa
 
 <u>Depolarizing error (MWPM vs UF decoder)</u>:
 <p align="center">
-  <img src="./figures/MWPMerrorgraph.png" width="350" />
-  <img src="./figures/UFerrorgraph.png" width="350" />
+  <img src="./figures/MWPMerrorgraph.png" width="400" />
+  <img src="./figures/UFerrorgraph.png" width="400" />
 </p>
 
 
 <u>Erasure error</u>:
 <p align="center">
-  <img src="./figures/erasure error graph.png" width="500" />
+  <img src="./figures/erasure error graph.png" width="400" />
 </p>
 
 Note that while the code threshold for the MWPM decoder is slightly higher than the threshold for the UF decoder, an ideal implementation of the UF decoder should have [<em>almost-</em>linear time complexity](https://arxiv.org/abs/1709.06218). That is, the time complexity is in $O(\alpha(n)n)$ where $\alpha(n)$ may be considered to satisfy $\alpha(n) \leq 3$ for all practical purposes. When running UF decoder and the MWPM decoder simulations with our implementation, we do indeed notice that error correction cycle simulations with the UF decoder run quicker than simulations with the MWPM decoder. 
