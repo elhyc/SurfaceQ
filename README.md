@@ -83,4 +83,4 @@ Furthermore, note that the erasure error model is quite different from depolariz
 
 
 
-The Jupyter notebooks [SurfaceQ demo 1](./src/Surface1 demo 1.ipynb) and [SurfaceQ demo 2](./src/Surface1 demo 2.ipynb) demonstrate some of the functionality of the SurfaceQ package. 
+The Jupyter notebooks [SurfaceQ demo 1](./src/SurfaceQ demo 1.ipynb) and [SurfaceQ demo 2](./src/Surface1 demo 2.ipynb) demonstrate some of the functionality of the SurfaceQ package. 
