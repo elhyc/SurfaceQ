@@ -38,7 +38,7 @@ In the case of the toric code, each edge of the lattice belongs to two plaquette
 
 ## Implementation details
 
-Apart from Qiskit, the [main code](./src/rotated_surface_code.py) uses [NetworkX](https://networkx.org/) to implement the necessary data structures required for (rotated) surface codes. 
+Apart from Qiskit, the [main code](./src/SurfaceQ.py) uses [NetworkX](https://networkx.org/) to implement the necessary data structures required for (rotated) surface codes. 
 Unlike the implementation found [here](https://github.com/elhyc/Kitaev-Toric-Code), this implementation uses more general algorithms available for CSS codes to: 1) produce logical states, 2) construct plaquette and star operators.
 
 First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a NetworkX lattice grid of size $d \times d$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
@@ -56,8 +56,6 @@ Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define correspon
 </p>
 
 The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. 
-
-This [Jupyter notebook](./src/KitaevSurfaceCode.ipynb) demonstrates some of the functionality provided by the main python file in this repository.
 
 
 ## Simulating surface codes and approximating code thresholds
@@ -81,3 +79,8 @@ A useful aspect of the implementation of the surface code based on rotated surfa
 Note that while the code threshold for the MWPM decoder is slightly higher than the threshold for the UF decoder, an ideal implementation of the UF decoder should have [<em>almost-</em>linear time complexity](https://arxiv.org/abs/1709.06218). That is, the time complexity is in $O(\alpha(n)n)$ where $\alpha(n)$ may be considered to satisfy $\alpha(n) \leq 3$ for all practical purposes. When running UF decoder and the MWPM decoder simulations with our implementation, we do indeed notice that error correction cycle simulations with the UF decoder run quicker than simulations with the MWPM decoder. 
 
 Furthermore, note that the erasure error model is quite different from depolarizing noise. In the erasure error model, i.i.d. Pauli errors are introduced, but only among a subset of "flagged qubits". That is, the decoder is provided the knowledge of where these Pauli errors may possibly occur. In this error model, we can use the peeling decoder and exhibit high code threshold (of 50%). 
+
+
+
+
+The Jupyter notebooks [SurfaceQ demo 1](./src/Surface1 demo 1.ipynb) and [SurfaceQ demo 2](./src/Surface1 demo 2.ipynb) demonstrate some of the functionality of the SurfaceQ package. 
