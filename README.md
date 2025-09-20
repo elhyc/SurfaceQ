@@ -3,6 +3,8 @@
 This repository contains a Qiskit implementation of Kitaev surface codes, a topological quantum CSS code family based on planar lattices. It shares much in common with the toric code, but the surface code is more general, flexible and its planar arrangement is easier to implement in practise. A Qiskit implementation of the toric code can be found [here]( https://github.com/elhyc/Kitaev-Toric-Code ).
 
 
+The Jupyter notebooks [SurfaceQ demo 1](./src/SurfaceQdemo1.ipynb) and [SurfaceQ demo 2](./src/SurfaceQdemo2.ipynb) demonstrate some of the functionality of the SurfaceQ package. 
+
 ## Features:
 
 The SurfaceQ package implements the <em>rotated</em> variant of the surface code. The rotated geometry is more efficient with respect to the number of required qubits, while maintaining the the same code distance as the unrotated version. In particular, the total required qubits for the rotated surface code is about half the total required qubits for the unrotated code. For reference, the required number of qubits is as follows:
@@ -82,5 +84,3 @@ Furthermore, note that the erasure error model is quite different from depolariz
 
 
 
-
-The Jupyter notebooks [SurfaceQ demo 1](./src/SurfaceQdemo1.ipynb) and [SurfaceQ demo 2](./src/SurfaceQdemo2.ipynb) demonstrate some of the functionality of the SurfaceQ package. 
