@@ -142,11 +142,6 @@ class RotatedSurfaceCode:
 
         self.ancillas = self.initialize_ancillias()
 
-        self.Z_parity_ancilla = AncillaRegister(1,name='parity')
-        self.Z_parity_cbit = ClassicalRegister(1, name = 'parity-cl')
-
-        self.LatticeCircuit.add_register(self.Z_parity_ancilla)
-        self.LatticeCircuit.add_register(self.Z_parity_cbit)
 
 ######################
 
@@ -206,7 +201,7 @@ class RotatedSurfaceCode:
         return ancilla_nodes          
         
     
-    def syndrome_measurement(self,label):
+    def syndrome_measurement(self,label, readout=True):
 
         ## label is 'X' or 'Z' 
         options = {'X' : self.LatticeCircuit.cx, 'Z': self.LatticeCircuit.cz}
@@ -226,6 +221,34 @@ class RotatedSurfaceCode:
             
             self.LatticeCircuit.measure(syndrome,meas)
 
+        if readout:
+            job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)   
+        # job = AerSimulator().run(transpiled_circuit, shots=1, memory=True)
+            result = job.result()
+        # memory = result.get_memory(transpiled_circuit)
+            memory = result.get_memory(self.LatticeCircuit)
+            
+
+            positions = []
+
+            if label == 'X':
+                memory_result = memory_result = memory[0].replace(' ','')[len(self.X_plaquettes): ][::-1]
+                for i in range(len(memory_result)):
+                    if memory_result[i] == '1':
+                        positions.append('X-' + str(i) )
+
+            if label == 'Z':
+            # memory = result.get_memory(transpiled_circuit)
+                # memory = result.get_memory(self.LatticeCircuit)
+                memory_result = memory[0].replace(' ','')[:len(self.Z_plaquettes)][::-1]
+
+                for i in range(len(memory_result)):
+                    if memory_result[i] == '1':
+                        positions.append('Z-' + str(i) )
+
+            return positions 
+
+
 
 
 
@@ -236,11 +259,10 @@ class RotatedSurfaceCode:
         self.LatticeCircuit = LatticeCircuit
         self.ancillas = self.initialize_ancillias()
 
-        self.Z_parity_ancilla = AncillaRegister(1,name='parity')
-        self.Z_parity_cbit = ClassicalRegister(1, name = 'parity-cl')
-
-        self.LatticeCircuit.add_register(self.Z_parity_ancilla)
-        self.LatticeCircuit.add_register(self.Z_parity_cbit)
+        # self.Z_parity_ancilla = AncillaRegister(1,name='parity')
+        # self.Z_parity_cbit = ClassicalRegister(1, name = 'parity-cl')
+        # self.LatticeCircuit.add_register(self.Z_parity_ancilla)
+        # self.LatticeCircuit.add_register(self.Z_parity_cbit)
         
 
 
@@ -356,64 +378,61 @@ class RotatedSurfaceCode:
 
     ######### phase flips ###########
     
-        self.syndrome_measurement('X')
+        X_positions = self.syndrome_measurement('X', readout=True)
 
     # simulator = AerSimulator()
     # transpiled_circuit = transpile(LatticeCircuit, simulator)
     # job = simulator.run(transpiled_circuit, shots=1, memory=True)
     # transpiled_circuit = transpile(LatticeCircuit)
      
-        job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)   
-    # job = AerSimulator().run(transpiled_circuit, shots=1, memory=True)
-    
-        result = job.result()
-    # memory = result.get_memory(transpiled_circuit)
-        memory = result.get_memory(self.LatticeCircuit)
-        memory_result = memory_result = memory[0].replace(' ','')[len(self.X_plaquettes)+1: ][::-1]
-    
-
-        positions = []
-        for i in range(len(memory_result)):
-            if memory_result[i] == '1':
-                positions.append('X-' + str(i) )
+    #     job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)   
+    # # job = AerSimulator().run(transpiled_circuit, shots=1, memory=True)
+    #     result = job.result()
+    # # memory = result.get_memory(transpiled_circuit)
+    #     memory = result.get_memory(self.LatticeCircuit)
+    #     memory_result = memory_result = memory[0].replace(' ','')[len(self.X_plaquettes)+1: ][::-1]
+    #     positions = []
+    #     for i in range(len(memory_result)):
+    #         if memory_result[i] == '1':
+    #             positions.append('X-' + str(i) )
 
         if error_type == 'depolarizing':
             if decoder_option == 'union-find':
-                self.UnionFind_decoder('X', positions)
+                self.UnionFind_decode('X', X_positions)
             else:            
-                self.MWPM_decoder('X', positions )
+                self.MWPM_decoder('X', X_positions )
         if error_type == 'erasure':
-            self.erasure_decoder(erasure, 'X', positions )    
+            self.erasure_decoder(erasure, 'X', X_positions )    
                
     
     ######### bit flips ###########
     
-        self.syndrome_measurement('Z')
+        Z_positions = self.syndrome_measurement('Z', readout=True)
     
     # transpiled_circuit = transpile(LatticeCircuit)
     # job = AerSimulator().run(transpiled_circuit, shots=1, memory=True)
     
-        job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)
-        result = job.result()
+    #     job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)
+    #     result = job.result()
     
     
-    # memory = result.get_memory(transpiled_circuit)
-        memory = result.get_memory(self.LatticeCircuit)
-        memory_result = memory[0].replace(' ','')[1:len(self.Z_plaquettes)+1][::-1]
+    # # memory = result.get_memory(transpiled_circuit)
+    #     memory = result.get_memory(self.LatticeCircuit)
+    # #     memory_result = memory[0].replace(' ','')[1:len(self.Z_plaquettes)+1][::-1]
 
 
-        positions = []
-        for i in range(len(memory_result)):
-            if memory_result[i] == '1':
-                positions.append('Z-' + str(i) )
+    #     positions = []
+    #     for i in range(len(memory_result)):
+    #         if memory_result[i] == '1':
+    #             positions.append('Z-' + str(i) )
             
         if error_type == 'depolarizing':
             if decoder_option == 'union-find':
-                self.UnionFind_decoder('Z', positions)
+                self.UnionFind_decode('Z', Z_positions)
             else:           
-                self.MWPM_decoder('Z', positions )
+                self.MWPM_decoder('Z', Z_positions )
         if error_type == 'erasure':
-            self.erasure_decoder(erasure, 'Z', positions )   
+            self.erasure_decoder(erasure, 'Z', Z_positions )   
 
     def single_round(self,p_error, error_type, decoder_option=None, report_option=False):
         self.error_channel_cycle(error_type,p_error, decoder_option, report_option)
@@ -423,11 +442,18 @@ class RotatedSurfaceCode:
     def measure_data(self):
     # ##### final logical Z-parity measurements ####
     # ##############################################
-        ZReadAncilla = self.Z_parity_ancilla
-        ZReadout = self.Z_parity_cbit
+        # ZReadAncilla = self.Z_parity_ancilla
+        # ZReadout = self.Z_parity_cbit
 
-        # self.LatticeCircuit.add_register(ZReadAncilla)
-        # self.LatticeCircuit.add_register(ZReadout)
+        ZReadAncilla = AncillaRegister(1,name='parity')
+        ZReadout  = ClassicalRegister(1, name = 'parity-cl')
+
+        # self.LatticeCircuit.add_register(self.Z_parity_ancilla)
+        # self.LatticeCircuit.add_register(self.Z_parity_cbit)
+
+
+        self.LatticeCircuit.add_register(ZReadAncilla)
+        self.LatticeCircuit.add_register(ZReadout)
 
         self.LatticeCircuit.h(ZReadAncilla[0])
         boundary_edge = nx.shortest_path(self.lattice_grid, (0,0), ( self.rows - 1, 0 ) )
@@ -514,86 +540,116 @@ class RotatedSurfaceCode:
 
 
 
-    def UnionFind_decoder(self, label, marked_nodes):
+    def UnionFind_decode(self, label, marked_nodes, display=False):
                 
-
-        tanner_graph = self.tanner_graphs[label]
-
-        root_nodes = self.X_checks + self.X_virtual_checks  if label == 'X' else self.Z_checks + self.Z_virtual_checks
-        virtual_checks = self.X_virtual_checks if label == 'X' else self.Z_virtual_checks
-        Clusters = { node : Cluster(node , tanner_graph, parity = int(node in marked_nodes), active = ( node not in virtual_checks ) ) for node in marked_nodes }  
-
-        node_table = {key: { 'nodes': [], 'visits': 0 }  for key in tanner_graph.nodes }
-
-        for root in Clusters:
-            node_table[root]['nodes'].append(root)
-            node_table[root]['visits'] = 1
-
-            
-        Cluster_forest = nx.DiGraph()
-        Cluster_forest.add_nodes_from( marked_nodes )
-
-
-        active_odd_cluters = [ cluster for cluster in Clusters if Clusters[cluster].parity == 1 and Clusters[cluster].active  ]
-        phase = 0 
-
+        UFDecoder = UnionFindDecoder(self, marked_nodes)  
+        UFDecoder.initialize_clusters(label)
         
-
-        while active_odd_cluters:
-
+        if display:
+            round = 0 
+            print('initial state of clusters:')
+            UFDecoder.draw_clusters(label)
+            plt.pause(1) 
+        
+        phase = 0 
+        while UFDecoder.active_odd_clusters:
             phase = phase%2
-            for root in active_odd_cluters:
-
-                Clusters[root].grow(phase)
-                for v in Clusters[root].boundary:
-                    if root not in node_table[v]['nodes']:
-                        node_table[v]['nodes'].append(root)
-                        node_table[v]['visits'] += 1 
-                if phase == 1:
-                    if Clusters[root].boundary & set(virtual_checks):
-                        Clusters[root].active = False  
-
-                Cluster_forest.update(Clusters[root ].graph)
-            fusion_table = { key: node_table[key]['nodes'] for key in node_table if len(node_table[key]['nodes']) >= 2 }
-            
-            while fusion_table:
-            ### fusion phase
-                for key in list(fusion_table.keys()):
-
-                    try:
-                        nx.find_cycle(Cluster_forest)
-                        print('cycle found!')
-                    except:
-                        pass
-                    
-                    item_1 = node_table[key]['nodes'].pop(0)
-                    item_2 = node_table[key]['nodes'].pop(0)
-                    root_1 = find_root(Cluster_forest, item_1 )
-                    root_2 = find_root(Cluster_forest, item_2 )  
-                    
-                    ordered = sorted( [ ( Clusters[root_1].size, root_1),  ( Clusters[root_2].size, root_2) ] )[::-1]
-                    if root_1 != root_2:
-                        Clusters[ordered[0][1] ].union( Clusters[ordered[1][1]], key )
-                        Cluster_forest.update( Clusters[ordered[0][1]].graph )
-
-                    node_table[key]['nodes'].append( ordered[0][1] ) 
-
-                fusion_table = { key: node_table[key]['nodes'] for key in node_table if len(node_table[key]['nodes']) >= 2 }
-
-
-
+            fusion_table = UFDecoder.growth(label, phase)
+            UFDecoder.fusion(fusion_table)
             phase += 1 
-            active_odd_cluters = [ cluster for cluster in Clusters if Clusters[cluster].parity == 1 and Clusters[cluster].active  ]
+            if display:
+                round += 1
+                print( 'state after round ' + str(round) + ':')
+                UFDecoder.draw_clusters(label)
+                plt.pause(1)
 
-        total_nodes = list(Cluster_forest.nodes) + list(itertools.chain(*[ Clusters[root].edge_nodes for root in Clusters  ]) )
-
-        self.erasure_decoder(total_nodes, label, marked_nodes , with_nodes=True) 
+        # total_nodes = list(UFDecoder.Cluster_forest.nodes) + list(itertools.chain(*[ UFDecoder.Clusters[root].edge_nodes for root in UFDecoder.Clusters  ]) )
+        self.erasure_decoder(UFDecoder.total_nodes, label, marked_nodes , with_nodes=True) 
                        
     def fuse(self, QLattice, side='right'):
         pass
     
 
+
+
+class UnionFindDecoder:
+
+    def __init__(self,surface_code, marked_nodes):
+        self.marked_nodes = marked_nodes
+        self.surface_code = surface_code 
+
+
+
+    def initialize_clusters(self, label):
+
+        tanner_graph = self.surface_code.tanner_graphs[label]
+        virtual_checks = self.surface_code.X_virtual_checks if label == 'X' else self.surface_code.Z_virtual_checks
+        self.Clusters = { node : Cluster(node , tanner_graph, parity = int(node in self.marked_nodes), active = ( node not in virtual_checks ) ) for node in self.marked_nodes }  
+
+        self.node_table = {key: { 'nodes': [], 'visits': 0 }  for key in tanner_graph.nodes }
+
+        for root in self.Clusters:
+            self.node_table[root]['nodes'].append(root)
+            self.node_table[root]['visits'] = 1
+            
+        Cluster_forest = nx.DiGraph()
+        Cluster_forest.add_nodes_from( self.marked_nodes )
+        self.active_odd_clusters = [ cluster for cluster in self.Clusters if self.Clusters[cluster].parity == 1 and self.Clusters[cluster].active  ]
+        self.Cluster_forest = Cluster_forest 
+        self.total_nodes =  list(self.Cluster_forest.nodes) + list(itertools.chain(*[self.Clusters[root].edge_nodes for root in self.Clusters  ]) )
+
+
+    def growth(self, label, phase):
+        virtual_checks = self.surface_code.X_virtual_checks if label == 'X' else self.surface_code.Z_virtual_checks
+
+        phase = phase%2
+        for root in self.active_odd_clusters:
+            self.Clusters[root].grow(phase)
+            for v in self.Clusters[root].boundary:
+                if root not in self.node_table[v]['nodes']:
+                    self.node_table[v]['nodes'].append(root)
+                    self.node_table[v]['visits'] += 1 
+            if phase == 1:
+                if self.Clusters[root].boundary & set(virtual_checks):
+                    self.Clusters[root].active = False  
+
+            self.Cluster_forest.update(self.Clusters[root ].graph)
+        fusion_table = { key: self.node_table[key]['nodes'] for key in self.node_table if len(self.node_table[key]['nodes']) >= 2 }
+        return fusion_table
     
+    def fusion(self, fusion_table):
+            
+        while fusion_table:
+
+            for key in list(fusion_table.keys()):
+
+            
+                item_1 = self.node_table[key]['nodes'].pop(0)
+                item_2 = self.node_table[key]['nodes'].pop(0)
+                root_1 = find_root(self.Cluster_forest, item_1 )
+                root_2 = find_root(self.Cluster_forest, item_2 )  
+                
+                ordered = sorted( [ ( self.Clusters[root_1].size, root_1),  ( self.Clusters[root_2].size, root_2) ] )[::-1]
+                if root_1 != root_2:
+                    self.Clusters[ordered[0][1] ].union( self.Clusters[ordered[1][1]], key )
+                    self.Cluster_forest.update( self.Clusters[ordered[0][1]].graph )
+
+                self.node_table[key]['nodes'].append( ordered[0][1] ) 
+
+            fusion_table = { key: self.node_table[key]['nodes'] for key in self.node_table if len(self.node_table[key]['nodes']) >= 2 }
+
+        self.active_odd_clusters = [ cluster for cluster in self.Clusters if self.Clusters[cluster].parity == 1 and self.Clusters[cluster].active  ]
+
+
+    def draw_clusters(self, label):
+        tanner_graph = self.surface_code.tanner_graphs[label]
+        cluster_nodes = list(self.Cluster_forest.nodes) + list(itertools.chain(*[ self.Clusters[root].edge_nodes for root in self.Clusters  ]) )
+
+
+        nx.draw(tanner_graph, pos=nx.spring_layout(tanner_graph, iterations=2000), nodelist= cluster_nodes, node_color='tab:red',  with_labels=True,font_size=9,node_size=100)
+
+
+
 class Cluster:
     def __init__(self, root, parent_graph, parity = 0, active= None ):
         self.edge_nodes = []  
