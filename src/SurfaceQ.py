@@ -195,8 +195,7 @@ class RotatedSurfaceCode:
                     else:
                         position = ( np.average( [ item[0]  for item in self.plaquettes[node] ] ), np.average( [item[1]  for item in self.plaquettes[node]] ) )
                     position_table[node] = position 
-
-            color_map = [ 'red' if node in marked_nodes else 'green' if node in checks else 'blue' for node in G.nodes ] 
+            color_map = [ 'red' if node in marked_nodes else 'green' if node in self.X_checks else 'grey' if node in self.X_virtual_checks else 'blue' for node in G.nodes ] 
         
         elif mode == 'Z':
             if coords == 'flat':
@@ -229,8 +228,7 @@ class RotatedSurfaceCode:
                         position = ( np.average( [ item[0]  for item in self.plaquettes[node] ] ), np.average( [item[1]  for item in self.plaquettes[node]] ) )
                     position_table[node] = position 
 
-            color_map = [ 'red' if node in marked_nodes else 'green' if node in checks else 'blue' for node in G.nodes ] 
-        
+            color_map = [ 'red' if node in marked_nodes else 'green' if node in self.Z_checks else 'grey' if node in self.Z_virtual_checks else 'blue' for node in G.nodes ] 
         if mode == 'primal':
             if coords == 'flat':
                 G = nx.relabel_nodes(self.lattice_grid, { node : self.flat_idx(node)  for node in self.lattice_grid} )
@@ -238,7 +236,6 @@ class RotatedSurfaceCode:
                 G = self.lattice_grid 
             color_map = [ 'red' if node in marked_nodes else 'blue'  for node in G.nodes ] 
             position_table = { node: node for node in G.nodes if type(node) != str  } 
-
 
         nx.draw(G, position_table, with_labels=True, node_color = color_map, font_size=6, node_size=90)
             
