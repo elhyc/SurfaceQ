@@ -57,7 +57,7 @@ Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define correspon
 <img src="./figures/tanner_Z_7x7.png" width="500"/>
 </p>
 
-The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```; these nodes on the Tanner graphs do not correspond to any physical ancilla qubit. The virtual check nodes are colored grey in the graphs above. 
+The check nodes on the Tanner graphs (supporting the ancilla qubits) are colored green, while the data nodes (supporting the data qubits) are colored blue. Furthermore, there are <em>virtual</em> check nodes labelled with the prefix of ```v-```. The virtual check nodes are colored grey in the graphs above, and they do not correspond to any physical ancilla qubits.s
 
 
 ## Simulating surface codes and approximating code thresholds
