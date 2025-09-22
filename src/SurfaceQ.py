@@ -475,7 +475,7 @@ class RotatedSurfaceCode:
             if decoder_option == 'union-find':
                 self.UnionFind_decode('X', X_positions)
             else:            
-                self.MWPM_decoder('X', X_positions )
+                self.MWPM_decode('X', X_positions )
         if error_type == 'erasure':
             self.erasure_decoder(erasure, 'X', X_positions )    
                
@@ -505,7 +505,7 @@ class RotatedSurfaceCode:
             if decoder_option == 'union-find':
                 self.UnionFind_decode('Z', Z_positions)
             else:           
-                self.MWPM_decoder('Z', Z_positions )
+                self.MWPM_decode('Z', Z_positions )
         if error_type == 'erasure':
             self.erasure_decoder(erasure, 'Z', Z_positions )   
 
@@ -542,32 +542,56 @@ class RotatedSurfaceCode:
         self.LatticeCircuit.measure(ZReadAncilla[0],ZReadout[0])
     
 
-    def MWPM_decoder(self, label, marked_nodes):
+    def MWPM_decode(self, label, marked_nodes, display=False ):
 
         if label == 'X':
             marked_X_graph, X_subgraph  = self.marked_tanner_graph('X', marked_nodes)
         
-        ## address syndrome 
-            X_matchings = nx.min_weight_matching(X_subgraph,  weight='weight')
-            
-            for match in X_matchings:
-                if not ( (  match[0][0] == 'b' ) and (match[1][0] == 'b' ) ):
-                    path = [ node for node in nx.shortest_path(marked_X_graph, match[0], match[1] ) if type(node) == int  ]
-                    self.LatticeCircuit.z(path)
-        
-        if label == 'Z':
-            marked_plaquette_graph, plaquette_pairing_graph = self.marked_tanner_graph('Z', marked_nodes )
+            if display:
+                print('Initial state of MWPM decoding for X stabilizers. Ancilla qubits in excitation:')
+                self.draw('X', marked_nodes=marked_nodes)
 
         ## address syndrome 
+            X_matchings = nx.min_weight_matching(X_subgraph,  weight='weight')
+            if display: 
+                print('Minimum weight perfect matchings:')
+                display_nodes = []        
+            for match in X_matchings:
+                if not ( (  match[0][0] == 'b' ) and (match[1][0] == 'b' ) ):
+                    path = nx.shortest_path( marked_X_graph, match[0], match[1] )
+                    self.LatticeCircuit.z([ node for node in path if type(node) ==  int ])
+                    if display:
+                        for node in path:
+                            if type(node) == int:        
+                                display_nodes.extend( list(  set(self.X_graph.neighbors(node) ) & set(self.X_virtual_checks) )  ) 
+                        display_nodes.extend( [self.coord(node) if type(node) == int else node for node in path]  )   
+            if display:
+                self.draw('X', marked_nodes= display_nodes )
+                    
+        if label == 'Z':
+            marked_plaquette_graph, plaquette_pairing_graph = self.marked_tanner_graph('Z', marked_nodes )
+            if display:
+                print('Initial state of MWPM decoding for Z stabilizers. Ancilla qubits in excitation:')
+                self.draw('Z', marked_nodes=marked_nodes)
+        ## address syndrome 
             plaquette_matchings = nx.min_weight_matching( plaquette_pairing_graph,  weight='weight')
+            if display: 
+                print('Minimum weight perfect matchings:')
+                display_nodes = []     
 
             for match in plaquette_matchings:
                 if not ( (  match[0][0] == 'b' ) and (match[1][0] == 'b'  ) ):
-                    path = [ node for node in nx.shortest_path( marked_plaquette_graph , match[0], match[1] ) if type(node) == int  ]
-                    self.LatticeCircuit.x(path)
-        
+                    path = nx.shortest_path( marked_plaquette_graph , match[0], match[1] )
+                    self.LatticeCircuit.x([ node for node in path if type(node) == int  ] )
+                    if display:
+                        for node in path:
+                            if type(node) == int:        
+                                display_nodes.extend( list(  set(self.Z_graph.neighbors(node)) & set(self.Z_virtual_checks) )  ) 
+                        display_nodes.extend( [self.coord(node) if type(node) == int else node for node in path]  )   
+                       
 
-
+            if display:
+                self.draw('Z', marked_nodes= display_nodes )
 
     def erasure_decoder(self, erasure, label, marked_nodes, with_nodes=False ):
         decoder_nodes = []
