@@ -334,13 +334,6 @@ class RotatedSurfaceCode:
         self.LatticeCircuit = LatticeCircuit
         self.ancillas = self.initialize_ancillias()
 
-        # self.Z_parity_ancilla = AncillaRegister(1,name='parity')
-        # self.Z_parity_cbit = ClassicalRegister(1, name = 'parity-cl')
-        # self.LatticeCircuit.add_register(self.Z_parity_ancilla)
-        # self.LatticeCircuit.add_register(self.Z_parity_cbit)
-        
-
-
     def initialize_LatticeCircuit(self):
         LatticeCircuit = QuantumCircuit()
         for node in self.lattice_grid.nodes:
@@ -575,7 +568,7 @@ class RotatedSurfaceCode:
                 print('Initial state of MWPM decoding for Z stabilizer excitations. Ancilla qubits in excitation:')
                 self.draw('Z', marked_nodes=marked_nodes)
                 plt.pause(1) 
-                
+
         ## address syndrome 
             plaquette_matchings = nx.min_weight_matching( plaquette_pairing_graph,  weight='weight')
             if display: 

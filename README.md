@@ -41,7 +41,6 @@ In the case of the toric code, each edge of the lattice belongs to two plaquette
 ## Implementation details
 
 Apart from Qiskit, the [main code](./src/SurfaceQ.py) uses [NetworkX](https://networkx.org/) to implement the necessary data structures required for (rotated) surface codes. 
-Unlike the implementation found [here](https://github.com/elhyc/Kitaev-Toric-Code), this implementation uses more general algorithms available for CSS codes to: 1) produce logical states, 2) construct plaquette and star operators.
 
 First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a NetworkX lattice grid of size $d \times d$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
 
