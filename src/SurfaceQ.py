@@ -548,7 +548,7 @@ class RotatedSurfaceCode:
             marked_X_graph, X_subgraph  = self.marked_tanner_graph('X', marked_nodes)
         
             if display:
-                print('Initial state of MWPM decoding for X stabilizers. Ancilla qubits in excitation:')
+                print('Initial state of MWPM decoding for X stabilizer excitations. Ancilla qubits in excitation:')
                 self.draw('X', marked_nodes=marked_nodes)
 
         ## address syndrome 
@@ -571,7 +571,7 @@ class RotatedSurfaceCode:
         if label == 'Z':
             marked_plaquette_graph, plaquette_pairing_graph = self.marked_tanner_graph('Z', marked_nodes )
             if display:
-                print('Initial state of MWPM decoding for Z stabilizers. Ancilla qubits in excitation:')
+                print('Initial state of MWPM decoding for Z stabilizer excitations. Ancilla qubits in excitation:')
                 self.draw('Z', marked_nodes=marked_nodes)
         ## address syndrome 
             plaquette_matchings = nx.min_weight_matching( plaquette_pairing_graph,  weight='weight')
