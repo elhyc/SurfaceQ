@@ -95,16 +95,31 @@ class RotatedSurfaceCode:
         self.X_plaquettes = [ (key,list(self.plaquettes[key].nodes)) for key in self.plaquettes if (key[1] - key[0]) % 2 == 0 ] + [ (self.boundary_plaquettes[key][0],self.boundary_plaquettes[key]) for key in self.boundary_plaquettes if (key[1] - key[0]) % 2 == 0 ]  
         self.Z_plaquettes = [ (key,list(self.plaquettes[key].nodes)) for key in self.plaquettes if (key[1] - key[0]) % 2 == 1 ] + [ (self.boundary_plaquettes[key][0],self.boundary_plaquettes[key]) for key in self.boundary_plaquettes if (key[1] - key[0]) % 2 == 1 ]
 
+    
+        self.plaquettes = {} 
 
     #########################
+
+
+
         self.LatticeCircuit = self.initialize_LatticeCircuit()
         self.DataQubits = self.LatticeCircuit.qubits        
-        
+      
         self.generator_matrix = self.get_generator_matrix()
         self.X_graph = generate_tanner_graph( self.generator_matrix[0], 'X')
 
-        self.X_checks = [ 'X-' + str(idx) for idx in range(len(self.X_plaquettes) ) ]
-        self.Z_checks = [ 'Z-' + str(idx) for idx in range(len(self.Z_plaquettes) ) ]
+        self.X_checks = [ ]
+        self.Z_checks = [  ] 
+
+        for idx in range(len(self.X_plaquettes)):
+            self.X_checks.append( 'X-' + str(idx)   )
+            self.plaquettes['X-'  + str(idx)] = self.X_plaquettes[idx][1]
+
+        for idx in range(len(self.Z_plaquettes)):
+            self.Z_checks.append( 'Z-' + str(idx)   )
+            self.plaquettes['Z-'  + str(idx)] = self.Z_plaquettes[idx][1]
+
+
 
         self.X_boundary_data = [  node for node in self.X_graph.nodes if self.X_graph.degree[node] == 1  ]
         self.X_virtual_checks = []
@@ -120,6 +135,7 @@ class RotatedSurfaceCode:
                 node = self.flat_idx( edge[i] )
                 if node in self.X_graph:
                     self.X_graph.add_edge( 'vX-' + str(idx), node)
+                    self.plaquettes['vX-' + str(idx)] = [self.coord(node)] 
        
             self.X_virtual_checks.append( 'vX-' + str(idx)  )
         
@@ -128,15 +144,17 @@ class RotatedSurfaceCode:
 
         self.Z_boundary_data = [  node for node in self.Z_graph.nodes if self.Z_graph.degree[node]  == 1  ]
         self.Z_virtual_checks = []
-        
+        self.Z_virtual_plaquettes = []
         for idx,edge in enumerate(self.side_plus_virtual + self.side_minus_virtual):
             for i in range(2):
                 node = self.flat_idx( edge[i] )
                 if node in self.Z_graph:
                     self.Z_graph.add_edge( 'vZ-' + str(idx), node)
+                    self.Z_virtual_plaquettes.append( (  idx, (idx,node) ) )
+                    self.plaquettes['vZ-' + str(idx)] = [self.coord(node)] 
 
             self.Z_virtual_checks.append('vZ-' + str(idx)   )
-        
+
         self.tanner_graphs = {'X': self.X_graph, 'Z': self.Z_graph} 
         
 
@@ -145,36 +163,84 @@ class RotatedSurfaceCode:
 
 ######################
 
-    def draw(self, mode, coords='default'):
+    def draw(self, mode, coords='default', marked_nodes=[]):
+
         if mode == 'X':
             if coords == 'flat':
                 G = self.tanner_graphs['X']
             else:
                 G = nx.relabel_nodes(self.tanner_graphs['X'], { node: self.coord(node) if type(node) == int else node for node in self.tanner_graphs['X'] } ) 
-            node_list = self.X_checks + self.X_virtual_checks
-            data_nodes = [node for node in G if type(node) != 'str' ]
-            pos = nx.spring_layout(G, iterations=2000)
-            nx.draw_networkx_nodes(G, pos,nodelist = data_nodes,  node_color="tab:blue" , node_size = 90 )
-            nx.draw(G, pos, with_labels=True, nodelist = node_list, node_color="tab:green", font_size=6, node_size=90)
+            checks = self.X_checks + self.X_virtual_checks
+            position_table = { node: node for node in G.nodes if type(node) != str  } 
+
+            for node in G.nodes:
+                if node in checks:
+                    if len(self.plaquettes[node]) == 2:
+                        edge = self.plaquettes[node]
+                        if edge[0][1] == 0 and edge[1][1] == 0:
+                            position = ((edge[0][0] + edge[1][0])/2 , -1)
+                        elif edge[0][1] == self.rows - 1 and edge[1][1] == self.rows - 1:
+                            position = (  (edge[0][0] + edge[1][0]) / 2, self.rows )
+                        elif edge[0][0] == 0 and edge[1][0] == 0: 
+                            position = (-1 ,  (edge[0][1] + edge[1][1])/2 )
+                        elif edge[0][0] == self.cols -1 and edge[1][0] == self.cols - 1:
+                            position = (self.cols, (edge[0][1] + edge[1][1]) / 2 )
+                            
+                    elif len(self.plaquettes[node]) == 1:
+                        item = self.plaquettes[node][0]
+                        if item[0] == 0:
+                            position = (-1,  item[1] )
+                        elif item[0] ==  self.cols -1 :
+                            position = ( self.cols , item[1]  )
+                    else:
+                        position = ( np.average( [ item[0]  for item in self.plaquettes[node] ] ), np.average( [item[1]  for item in self.plaquettes[node]] ) )
+                    position_table[node] = position 
+
+            color_map = [ 'red' if node in marked_nodes else 'green' if node in checks else 'blue' for node in G.nodes ] 
+        
         elif mode == 'Z':
             if coords == 'flat':
                 G = self.tanner_graphs['Z']
             else:
                 G = nx.relabel_nodes(self.tanner_graphs['Z'], { node: self.coord(node) if type(node) == int else node for node in self.tanner_graphs['Z'] } )
-            node_list = self.Z_checks + self.Z_virtual_checks
-            data_nodes = [node for node in G if type(node) != 'str' ]
+            checks = self.Z_checks + self.Z_virtual_checks
+            position_table = { node: node for node in G.nodes if type(node) != str  } 
             
-            pos = nx.spring_layout(G, iterations=2000)
-            nx.draw_networkx_nodes(G, pos,nodelist=data_nodes, node_color="tab:blue", node_size = 90 )
-            nx.draw(G, pos, with_labels=True, nodelist = node_list, node_color="tab:green", font_size=6, node_size = 90)
-            
-        elif mode == 'primal':
+            for node in G.nodes:
+                if node in checks:
+                    if len(self.plaquettes[node]) == 2:
+                        edge = self.plaquettes[node]
+                        if edge[0][1] == 0 and edge[1][1] == 0:
+                            position = ((edge[0][0] + edge[1][0])/2 , -1)
+                        elif edge[0][1] == self.rows - 1 and edge[1][1] == self.rows - 1:
+                            position = (  (edge[0][0] + edge[1][0]) / 2, self.rows )
+                        elif edge[0][0] == 0 and edge[1][0] == 0: 
+                            position = (-1 ,  (edge[0][1] + edge[1][1])/2 )
+                        elif edge[0][0] == self.cols -1 and edge[1][0] == self.cols - 1:
+                            position = (self.cols, (edge[0][1] + edge[1][1]) / 2 )
+                            
+                    elif len(self.plaquettes[node]) == 1:
+                        item = self.plaquettes[node][0]
+                        if item[1] == 0:
+                            position = (item[0] , -1)
+                        elif item[1] ==  self.rows -1 :
+                            position = ( item[0]   , self.rows )
+                    else:
+                        position = ( np.average( [ item[0]  for item in self.plaquettes[node] ] ), np.average( [item[1]  for item in self.plaquettes[node]] ) )
+                    position_table[node] = position 
+
+            color_map = [ 'red' if node in marked_nodes else 'green' if node in checks else 'blue' for node in G.nodes ] 
+        
+        if mode == 'primal':
             if coords == 'flat':
                 G = nx.relabel_nodes(self.lattice_grid, { node : self.flat_idx(node)  for node in self.lattice_grid} )
             else:
                 G = self.lattice_grid 
-                
-            nx.draw(G, nx.spring_layout(G, iterations=2000), with_labels=True, font_size=6, node_size=90)
+            color_map = [ 'red' if node in marked_nodes else 'blue'  for node in G.nodes ] 
+            position_table = { node: node for node in G.nodes if type(node) != str  } 
+
+
+        nx.draw(G, position_table, with_labels=True, node_color = color_map, font_size=6, node_size=90)
             
         
     def initialize_ancillias(self):
@@ -200,7 +266,19 @@ class RotatedSurfaceCode:
 
         return ancilla_nodes          
         
-    
+    def logical(self, label):
+        if label == 'Z':
+            boundary_edge = nx.shortest_path(self.lattice_grid, (0,0), ( self.rows - 1, 0 ) )
+            op = self.LatticeCircuit.z 
+        if label == 'X':
+            boundary_edge = nx.shortest_path(self.lattice_grid, (0,0), ( 0, self.cols - 1) )
+            op = self.LatticeCircuit.x 
+
+        for node in boundary_edge:
+            qubit = self.LatticeCircuit.qubits[ self.flat_idx(node) ]
+            op(qubit)
+
+
     def syndrome_measurement(self,label, readout=True):
 
         ## label is 'X' or 'Z' 
@@ -639,16 +717,10 @@ class UnionFindDecoder:
             fusion_table = { key: self.node_table[key]['nodes'] for key in self.node_table if len(self.node_table[key]['nodes']) >= 2 }
 
         self.active_odd_clusters = [ cluster for cluster in self.Clusters if self.Clusters[cluster].parity == 1 and self.Clusters[cluster].active  ]
-
+        self.total_nodes =  list(self.Cluster_forest.nodes) + list(itertools.chain(*[self.Clusters[root].edge_nodes for root in self.Clusters  ]) )
 
     def draw_clusters(self, label):
-        tanner_graph = self.surface_code.tanner_graphs[label]
-        cluster_nodes = list(self.Cluster_forest.nodes) + list(itertools.chain(*[ self.Clusters[root].edge_nodes for root in self.Clusters  ]) )
-
-
-        nx.draw(tanner_graph, pos=nx.spring_layout(tanner_graph, iterations=2000), nodelist= cluster_nodes, node_color='tab:red',  with_labels=True,font_size=9,node_size=100)
-
-
+        self.surface_code.draw( label, marked_nodes = [ self.surface_code.coord(node) if type(node) != str else node for node in self.total_nodes] )
 
 class Cluster:
     def __init__(self, root, parent_graph, parity = 0, active= None ):
