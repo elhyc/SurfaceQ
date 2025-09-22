@@ -550,6 +550,7 @@ class RotatedSurfaceCode:
             if display:
                 print('Initial state of MWPM decoding for X stabilizer excitations. Ancilla qubits in excitation:')
                 self.draw('X', marked_nodes=marked_nodes)
+                plt.pause(1)
 
         ## address syndrome 
             X_matchings = nx.min_weight_matching(X_subgraph,  weight='weight')
@@ -573,6 +574,8 @@ class RotatedSurfaceCode:
             if display:
                 print('Initial state of MWPM decoding for Z stabilizer excitations. Ancilla qubits in excitation:')
                 self.draw('Z', marked_nodes=marked_nodes)
+                plt.pause(1) 
+                
         ## address syndrome 
             plaquette_matchings = nx.min_weight_matching( plaquette_pairing_graph,  weight='weight')
             if display: 
