@@ -42,14 +42,13 @@ In the case of the toric code, each edge of the lattice belongs to two plaquette
 
 Apart from Qiskit, the [main code](./src/SurfaceQ.py) uses [NetworkX](https://networkx.org/) to implement the necessary data structures required for (rotated) surface codes. 
 
-First, a NetworkX lattice grid of an appropriate size is formed -- we initiate a NetworkX lattice grid of size $d \times d$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
+When a rotated surface code of size $k_{0} \times k_{1}$ is initialized, a NetworkX lattice grid of size $k_{0} \times k_{1}$  is formed. This lattice is referred to as the <em>primal lattice</em> of the surface code. We can use NetworkX to produce a visualization of it:
 
 <p align="center">
 <img src="./figures/primal_lattice_7x7.png"  width="500"/>
 </p>
 
-
-Once we have our parity check matrices $(H_{X}, H_{Z})$, we can define corresponding *Tanner graphs*: these are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$ and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $7 \times 7$ lattice: 
+Then, parity check matrices $(H_{X}, H_{Z})$ and corresponding  *Tanner graphs* are also initialized. Recall that Tanner graphs are bipartite graphs where a "check node" is defined for each row of $H = H_{X}, H_{Z}$, and edges are formed between the check node and nodes corresponding to the edges of the lattice according to the non-zero entries of the given row in $H$. Below are examples for the $X$-type and $Z$-type Tanner graphs respectively for the $7 \times 7$ lattice: 
 
 <p align="center">
 <img src="./figures/tanner_X_7x7.png"  width="500"/>
