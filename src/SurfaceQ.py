@@ -507,7 +507,7 @@ class RotatedSurfaceCode:
         self.measure_data()
         
 
-    def measure_data(self):
+    def measure_data(self, readout = False ):
     # ##### final logical Z-parity measurements ####
     # ##############################################
         # ZReadAncilla = self.Z_parity_ancilla
@@ -533,8 +533,16 @@ class RotatedSurfaceCode:
         self.LatticeCircuit.h(ZReadAncilla[0])  
     
         self.LatticeCircuit.measure(ZReadAncilla[0],ZReadout[0])
-    
-
+        
+        if readout: 
+            job = AerSimulator().run(self.LatticeCircuit, shots=1, memory=True)
+            result = job.result()
+            memory = result.get_memory(self.LatticeCircuit)
+            memory_result = memory[0].replace(' ','')
+             
+            return memory_result[0]
+        
+         
     def MWPM_decode(self, label, marked_nodes, display=False ):
 
         if label == 'X':
