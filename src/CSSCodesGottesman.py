@@ -106,64 +106,7 @@ def initialize_groundstate(pauli_strings):
         for idx in ones:
             quantum_circuit.cx(pivot, idx )
     return quantum_circuit
-    
-
-
-
-def syndrome_measurement(qc, generator_data, syndromes, meas, n,k, pauli_type):
-    # syndromes = qc.ancillas[:]
-    # meas = qc.clbits[:]
-    data = qc.qubits[: n ]
-    X_block = generator_data[1]
-    r = X_block.rank()
-    X_block = X_block[:r, :]   
-    Z_block = generator_data[2][r: , :]
-    
-
-    if pauli_type == 'X':
-        block = X_block 
-        # block_shape = block.rows()
-        block_shape = r
-    if pauli_type == 'Z':
-        block = Z_block
-        block_shape = block.rows
-        # block_shape = n - k - r 
-        
-    
-    for row_idx in range( block_shape ):
-        # # syndrome = AncillaRegister(1) 
-        # qc.add_register(syndrome) 
-        
-        qc.h(syndromes[row_idx])
-        ones = []
-        # ones = locate_ones( [block.row(row_idx)[idx] for idx in range(block.row(row_idx).shape[1])   ]   )
-        for idx in range(block.row(row_idx).shape[1]):
-            if block.row(row_idx)[idx] == 1:
-                ones.append(idx)
                 
-        for idx in ones:
-            if pauli_type == 'X':
-                qc.cx( syndromes[row_idx], data[idx] )
-            if pauli_type == 'Z':
-                qc.cz( syndromes[row_idx], data[idx] )
-                
-        qc.h(syndromes[row_idx])
-        qc.measure(syndromes[row_idx], meas[row_idx])
-        
-        
-        ##reset syndromes
-        qc.h(syndromes[row_idx])
-        
-        for idx in ones:
-            if pauli_type == 'X':
-                qc.cx( syndromes[row_idx], data[idx] )
-            if pauli_type == 'Z':
-                qc.cz( syndromes[row_idx], data[idx] )
-                
-        qc.h(syndromes[row_idx])
-        
-            
-            
 def CSS_logical_operator(qc,generator_data,n,k,pauli_type, index):
     r = generator_data[0].rank()
     
@@ -191,10 +134,6 @@ def CSS_logical_operator(qc,generator_data,n,k,pauli_type, index):
             
         qc.x(ones)
             
-
-    
-        
-        
     if pauli_type == 'Z':
         V3 = sp.eye(k)
         V1 = A2.transpose()
@@ -208,22 +147,7 @@ def CSS_logical_operator(qc,generator_data,n,k,pauli_type, index):
         qc.z(ones)
                 
     
-    
-def ApplyPauliError(quantum_circuit, qubits, p_error):
-    for qubit in qubits:
-        error_choice = np.random.choice([0,1,2,3],p=[1 - p_error, p_error/3, p_error/3, p_error/3])
-        if error_choice == 1:
-            quantum_circuit.x(qubit)
-        if error_choice == 2: 
-            quantum_circuit.z(qubit)
-        if error_choice == 3:
-            quantum_circuit.y(qubit)
-               
-
-
-   
 def generate_tanner_graph( gen_matrix, label):    
-    
     tanner_graph = nx.Graph()
     for idx in range(gen_matrix.rows):
         check_node_label =  label + '-' + str(idx) 
@@ -234,96 +158,3 @@ def generate_tanner_graph( gen_matrix, label):
                 tanner_graph.add_edge( check_node_label, i)
 
     return tanner_graph
-     
-def compute_boundary(tanner_graph):
-    _, data = bipartite.sets(tanner_graph)
-    boundary = []
-    # tanner_graph.add_node('bdry' , bipartite = 0 )
-    for node in data:
-        if tanner_graph.degree(node) ==  1:
-            boundary.append(node)
-            # boundary_label = 'b'+str(node)
-            
-            # tanner_graph.add_node(boundary_label, bipartite = 0)
-            # tanner_graph.add_edge(boundary_label, node, weight=0)
-            
-    return boundary       
-            
-    
-       
-        
-    # ## Z checks
-    # ZGraph = nx.Graph()
-    # for idx in range(gen_matrix[1].rows):
-    #     check_node_label = 'r' + str(idx)
-    #     ZGraph.add_node( check_node_label , bipartite = 0 )
-    #     for i,j in enumerate( gen_matrix[1].row(idx) ):
-    #         if j == 1:
-    #             ZGraph.add_node(i, bipartite = 1)
-    #             ZGraph.add_edge( check_node_label, i)    
-    # return XGraph, ZGraph
-    
-                
-        
-        
-    
-
-    
-def CSS_code(gen_matrix, n, k, p_error):
-    
-    ## include decoder as input 
-    
-    
-    CSS_code, generator_data = initialize_code(gen_matrix,n,k)
-    CSS_decode = CSS_code.inverse()
-    
-    physical_qubits = CSS_code.qubits
-    rx = generator_data[1].rank()
-    rz = generator_data[2].rank()
-    
-    CSS_X_syndromes = AncillaRegister(rx)
-    CSS_Z_syndromes = AncillaRegister(rz)
-    
-    CSS_X_meas = ClassicalRegister(rx)
-    CSS_Z_meas = ClassicalRegister(rz)    
-    CSS_code.add_register(CSS_X_syndromes,CSS_Z_syndromes)
-    CSS_code.add_register(CSS_X_meas, CSS_Z_meas)
-    
-    ApplyPauliError(CSS_code, physical_qubits, p_error)
-    
-    
-    ########## measuring X stabilizers ####################
-    
-    syndrome_measurement(CSS_code, generator_data, CSS_X_syndromes, CSS_X_meas, n,k, 'X')
-
-    for i in range(len(physical_qubits)):
-        ones = [str(x) for x in generator_data[1].col(i)]
-        ones_matching = int(''.join(ones)[::-1],2) 
-    
-    with CSS_code.if_test( (CSS_X_meas, ones_matching) ):
-        CSS_code.z(i)
-    ####################
-    
-    
-     ####### measuring Z stabilizers  ###################
-    syndrome_measurement(CSS_code, generator_data, CSS_X_syndromes, CSS_X_meas, n,k, 'X')
-
-    for i in range(len(physical_qubits)):
-        ones = [str(x) for x in generator_data[1].col(i)]
-        ones_matching = int(''.join(ones)[::-1],2) 
-    
-    with CSS_code.if_test( (CSS_X_meas, ones_matching) ):
-        CSS_code.z(i)
-    ####################
-    
-    CSS_code.compose(CSS_decode, qubits=physical_qubits, inplace=True)
-    finalmeasure = ClassicalRegister(len(physical_qubits))
-    CSS_code.add_register(finalmeasure)
-    CSS_code.measure(physical_qubits,finalmeasure) 
-       
-
-    return CSS_code
-
-
-
-    
